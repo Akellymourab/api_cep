@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -15,10 +14,11 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import Switch from '@mui/material/Switch'; 
+import PropTypes from 'prop-types';
+import FormControlLabel from '@mui/material/FormControlLabel'; 
 import { visuallyHidden } from '@mui/utils';
 
 function createData(cep,
@@ -32,23 +32,23 @@ function createData(cep,
   gia,
   ddd,
   siafi) {
-return { cep,
-  logradouro,
-  numero,
-  complemento,
-  bairro,
-  localidade,
-  uf,
-  ibge,
-  gia,
-  ddd,
-  siafi};
-  
+  return {
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    localidade,
+    uf,
+    ibge,
+    gia,
+    ddd,
+    siafi,
+  };
 }
 
 const rows = [
   createData(),
-  
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -227,20 +227,16 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function EnhancedTable() {
-  const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('cep'); // Assuming 'cep' is a suitable default
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('cep');
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    // Fetch data and update the rows state
     fetch(`http://localhost:8000/enderecos`)
-      .then(function (resposta) {
-        return resposta.json();
-      })
       .then(function (conteudo) {
         const updatedRows = conteudo.map((endereco) => createData(
           endereco.cep,
@@ -255,25 +251,17 @@ export default function EnhancedTable() {
           endereco.ddd,
           endereco.siafi
         ));
-        setRows(updatedRows); 
+        setRows(updatedRows);
       })
       .catch(function (error) {
         console.error('Ocorreu um erro:', error);
       });
   }, []);
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
   };
 
   const handleClick = (event, name) => {
@@ -312,8 +300,7 @@ export default function EnhancedTable() {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const visibleRows = React.useMemo(
     () =>
@@ -321,7 +308,7 @@ export default function EnhancedTable() {
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage,
       ),
-    [order, orderBy, page, rowsPerPage],
+    [order, orderBy, page, rowsPerPage, rows], // Include 'rows' as a dependency here
   );
 
   return (
@@ -342,25 +329,24 @@ export default function EnhancedTable() {
               rowCount={rows.length}
             />
             <TableBody>
-            {rows.map((row, index) => {
-              const isItemSelected = isSelected(row.cep); // Use a unique identifier here
-              const labelId = `enhanced-table-checkbox-${index}`;
+              {visibleRows.map((row, index) => {
+                const isItemSelected = isSelected(row.cep); // Use a unique identifier here
 
-              return (
-                <TableRow
-                  hover
-                  onClick={(event) => handleClick(event, row.cep)} // Use a unique identifier here
-                  role="checkbox"
-                  aria-checked={isItemSelected}
-                  tabIndex={-1}
-                  key={row.cep} // Use a unique identifier here
-                  selected={isItemSelected}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  {/* Render cells for each column */}
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow
+                    hover
+                    onClick={(event) => handleClick(event, row.cep)} // Use a unique identifier here
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={row.cep} // Use a unique identifier here
+                    selected={isItemSelected}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    {/* Render cells for each column */}
+                  </TableRow>
+                );
+              })}
 
             </TableBody>
           </Table>
