@@ -7,12 +7,18 @@ CREATE TABLE tb_enderecos(
      bairro VARCHAR(50) NOT NULL,
      localidade VARCHAR(25) NOT NULL,
      uf VARCHAR(5) NOT NULL,
-     ibge INT,
-     gia INT NULL,
-     ddd INT,
-     siafi INT,
+     pais VARCHAR(20) NULL,
      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
      updated_at DATETIME NULL
 );
 ALTER TABLE tb_enderecos
 MODIFY ;
+
+ALTER TABLE tb_enderecos
+DROP COLUMN siafi;
+
+ALTER TABLE tb_enderecos
+ADD pais VARCHAR(20) NULL AFTER uf;
+
+ALTER TABLE tb_enderecos
+ALTER COLUMN cep VARCHAR(10);

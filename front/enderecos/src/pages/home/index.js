@@ -1,37 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Toolbar,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Checkbox,
+  IconButton,
+  Tooltip,
+} from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import Switch from '@mui/material/Switch'; 
-import PropTypes from 'prop-types';
-import FormControlLabel from '@mui/material/FormControlLabel'; 
 import { visuallyHidden } from '@mui/utils';
+import PropTypes from 'prop-types';
 
-function createData(cep,
+function createData(
+  cep,
   logradouro,
   numero,
   complemento,
   bairro,
   localidade,
   uf,
-  ibge,
-  gia,
-  ddd,
-  siafi) {
+  pais
+) {
   return {
     cep,
     logradouro,
@@ -40,96 +42,70 @@ function createData(cep,
     bairro,
     localidade,
     uf,
-    ibge,
-    gia,
-    ddd,
-    siafi,
+    pais,
   };
-}
-
-const rows = [
-  createData(),
-];
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
 }
 
 const headCells = [
   {
-    id: 'cep', 
+    id: 'cep',
     label: 'CEP',
+    disablePadding: false,
+    numeric: true,
   },
   {
-    id: 'logradouro', 
+    id: 'logradouro',
     label: 'Logradouro',
+    disablePadding: false,
+    numeric: false,
   },
   {
-    id: 'numero', 
+    id: 'numero',
     label: 'Numero',
+    disablePadding: false,
+    numeric: true,
   },
   {
-    id: 'complemento', 
+    id: 'complemento',
     label: 'Complemento',
+    disablePadding: false,
+    numeric: false,
   },
   {
-    id: 'bairro', 
+    id: 'bairro',
     label: 'Bairro',
+    disablePadding: false,
+    numeric: false,
   },
   {
-    id: 'localidade', 
+    id: 'localidade',
     label: 'Localidade',
+    disablePadding: false,
+    numeric: false,
   },
   {
-    id: 'uf', 
+    id: 'uf',
     label: 'UF',
+    disablePadding: false,
+    numeric: false,
   },
   {
-    id: 'ibge', 
-    label: 'IBGE',
-  },
-  {
-    id: 'gia', 
-    label: 'GIA',
-  },
-  {
-    id: 'ddd', 
-    label: 'DDD',
-  },
-  {
-    id: 'siafi', 
-    label: 'SIAFI',
+    id: 'pais',
+    label: 'País',
+    disablePadding: false,
+    numeric: false,
   },
 ];
 
-
 function EnhancedTableHead(props) {
-  const {order, orderBy, numSelected, rowCount, onRequestSort } =
-    props;
+  const {
+    onSelectAllClick,
+    order,
+    orderBy,
+    numSelected,
+    rowCount,
+    onRequestSort,
+  } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -137,6 +113,17 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
+        <TableCell padding="checkbox">
+          <Checkbox
+            color="primary"
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{
+              'aria-label': 'select all desserts',
+            }}
+          />
+        </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -166,6 +153,7 @@ function EnhancedTableHead(props) {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
+  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
@@ -201,7 +189,7 @@ function EnhancedTableToolbar(props) {
           id="tableTitle"
           component="div"
         >
-        Endereços cadastrados
+          Nutrition
         </Typography>
       )}
 
@@ -229,31 +217,31 @@ EnhancedTableToolbar.propTypes = {
 export default function EnhancedTable() {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('cep');
-  const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [rows, setRows] = useState([]);
+  const [selected, setSelected] = useState([]);
 
   useEffect(() => {
     fetch(`http://localhost:8000/enderecos`)
-      .then(function (conteudo) {
-        const updatedRows = conteudo.map((endereco) => createData(
-          endereco.cep,
-          endereco.logradouro,
-          endereco.numero,
-          endereco.complemento,
-          endereco.bairro,
-          endereco.localidade,
-          endereco.uf,
-          endereco.ibge,
-          endereco.gia,
-          endereco.ddd,
-          endereco.siafi
-        ));
-        setRows(updatedRows);
+      .then((response) => response.json())
+      .then((data) => {
+        const updatedRows = data.map((endereco) =>
+          createData(
+            endereco.cep,
+            endereco.logradouro,
+            endereco.numero,
+            endereco.complemento,
+            endereco.bairro,
+            endereco.localidade,
+            endereco.uf,
+            endereco.pais
+          )
+        );
+        setRows(updatedRows); 
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.error('Ocorreu um erro:', error);
       });
   }, []);
@@ -264,12 +252,21 @@ export default function EnhancedTable() {
     setOrderBy(property);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelected = rows.map((n) => n.cep);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, cep) => {
+    const selectedIndex = selected.indexOf(cep);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, cep);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -284,7 +281,7 @@ export default function EnhancedTable() {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_, newPage) => {
     setPage(newPage);
   };
 
@@ -293,22 +290,15 @@ export default function EnhancedTable() {
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
+  const handleChangeDense = () => {
+    setDense(!dense);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (cep) => selected.indexOf(cep) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
-  const visibleRows = React.useMemo(
-    () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage,
-      ),
-    [order, orderBy, page, rowsPerPage, rows], // Include 'rows' as a dependency here
+  const visibleRows = rows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
   );
 
   return (
@@ -325,29 +315,40 @@ export default function EnhancedTable() {
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.cep); // Use a unique identifier here
+                const isItemSelected = isSelected(row.cep);
+                const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
+                    key={row.cep}                  
                     hover
-                    onClick={(event) => handleClick(event, row.cep)} // Use a unique identifier here
+                    onClick={(event) => handleClick(event, row.cep)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.cep} // Use a unique identifier here
+
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        inputProps={{
+                          'aria-labelledby': labelId,
+                        }}
+                      />
+                    </TableCell>
                     {/* Render cells for each column */}
                   </TableRow>
                 );
               })}
-
             </TableBody>
           </Table>
         </TableContainer>

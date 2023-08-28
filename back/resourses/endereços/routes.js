@@ -1,56 +1,74 @@
 const express = require('express');
-
 const database = require('../../connection/databases');
-
 const app = express.Router();
 
-
 app.get('/enderecos', async (req, res) => {
-    let dados = await database.execute('SELECT * FROM tb_enderecos');
-
-    res.send(dados);
+  try {
+    const dados = await database.execute('SELECT * FROM tb_enderecos');
+    res.status(200).send(dados);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/enderecos/:id', async (req, res) => {
-    let dados = await database.execute(`
-        SELECT * FROM tb_enderecos WHERE id='${req.params.id}'
-    `);
-
-    res.send(dados[0]);
+  try {
+    const id = req.params.id;
+    const dados = await database.execute(`
+    SELECT * FROM tb_enderecos WHERE id='${req.params.id}'`, [id]);
+    res.status(200).send(dados[0]);
+  } catch (error) {
+    console.error('Error fetching data by ID:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/enderecos', async (req, res) => {
-    let dados = req.body;
+  try {
+    const { cep, logradouro, numero, complemento, bairro, localidade, uf, pais} = req.body;
+    const sql = await database.execute(`
+    INSERT INTO tb_enderecos (cep, logradouro, numero, complemento, bairro, localidade, uf, pais)
+    VALUES ('${req.body.cep}', '${req.body.logradouro}','${req.body.numero}', '${req.body.complemento}','${req.body.bairro}', '${req.body.localidade}', '${req.body.uf}', '${req.body.pais}');
+    `, [cep, logradouro, numero, complemento, bairro, localidade, uf, pais]);
 
-    let sql = await database.execute(`
-    INSERT INTO tb_enderecos (cep, logradouro, numero, complemento, bairro, localidade, uf, ibge, gia, ddd, siafi)
-    VALUES ('${req.body.cep}', '${req.body.logradouro}','${req.body.numero}', '${req.body.complemento}','${req.body.bairro}', '${req.body.localidade}', '${req.body.uf}', '${req.body.ibge}', '${req.body.gia}', '${req.body.ddd}', '${req.body.siafi}');
-    `);
-    
-    dados.id = sql.insertId;
-
-    res.status(201).send(dados);
-})
+    const insertedId = sql.insertId;
+    const insertedData = { id: insertedId, ...req.body };
+    res.status(201).send(insertedData);
+  } catch (error) {
+    console.error('Error inserting data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 app.delete('/enderecos/:id', async (req, res) => {
-    await database.execute(`
-        DELETE FROM tb_enderecos WHERE id='${req.params.id}'
-    `);
-
+  try {
+    const id = req.params.id;
+    await database.execute(`DELETE FROM tb_enderecos WHERE id='${req.params.id}'`, [id]);
     res.sendStatus(204);
+  } catch (error) {
+    console.error('Error deleting data:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.patch('/enderecos/:id', async (req, res) => {
-    let dados = req.body; 
-
-    await database.execute(`
-        UPDATE tb_enderecos SET cep='${dados.cep}', logradouro='${dados.logradouro}', numero='${dados.numero}', complemento='${dados.complemento}', bairro='${dados.bairro}', localidade='${dados.localidade}', uf='${dados.uf}', ibge='${dados.ibge}', gia='${dados.gia}', ddd='${dados.ddd}', siafi='${dados.siafi}'
-        WHERE id = '${req.params.id}'
-    `);
-    
-    dados.id = parseInt(req.params.id);
-
-    res.send(dados);
-});
+    try {
+      const id = req.params.id;
+      const { cep, logradouro, numero, complemento, bairro, localidade, uf, pais } = req.body;
+      
+      await database.execute(`
+        UPDATE tb_enderecos SET cep='${cep}', logradouro='${logradouro}', numero='${numero}', complemento='${complemento}', bairro='${bairro}', localidade='${localidade}', uf='${uf}', pais='${pais}'
+        WHERE id = '${id}'
+      `);
+  
+      const updatedData = { id, cep, logradouro, numero, complemento, bairro, localidade, uf, pais };
+      res.status(200).send(updatedData);
+    } catch (error) {
+      console.error('Error updating data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+  
 
 module.exports = app;
