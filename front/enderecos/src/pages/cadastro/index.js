@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import Image from "./undraw_Map_dark_re_36sy.png"
+ import { Container } from "@mui/material";
+ import {  } from "bootstrap";
 
 const CadastroEndereco = () => {
   const [cep, setCep] = useState('');
@@ -26,16 +28,15 @@ const CadastroEndereco = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Implement your logic to submit the data here
   };
 
   return (
-    <div className="container" style={{ backgroundColor: 'antiquewhite' }}>
-      <h1 className="mt-4">ENDEREÇO</h1>
+    <Container style={{ backgroundColor: 'antiquewhite' }}>
+      <h1 className="">ENDEREÇO</h1>
       <hr />
 
       <section className="row align-items-center">
-        <div className="col">
+        <Container className="col">
           <form onSubmit={handleSubmit}>
             <label>CEP</label>
             <input
@@ -106,16 +107,16 @@ const CadastroEndereco = () => {
               ENVIAR
             </button>
           </form>
-        </div>
-        <div className="col">
+        </Container>
+        <Container className="col">
           <img
             className="w-100"
             src={Image}
             alt=""
           />
-        </div>
+        </Container>
       </section>
-    </div>
+    </Container>
   );
 };
 

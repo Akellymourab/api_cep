@@ -15,14 +15,17 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-import { useHistory } from 'react-router-dom';
+// import EditAddressModal from "../popup/index";
+// import { useHistory } from 'react-router-dom';
 
 function EnhancedTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [rows, setRows] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingAddressData, setEditingAddressData] = useState(null);
 
-  // const history = useHistory();
+  
 
   useEffect(() => {
     fetch(`http://localhost:8000/enderecos`)
@@ -57,6 +60,51 @@ function EnhancedTable() {
         console.error('Ocorreu um erro ao deletar:', error);
       });
   };
+  const handleEdit = (id, updatedRows) => {
+    fetch(`http://localhost:8000/enderecos/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedRows), // Envie os novos dados no corpo da solicitação
+    })
+    .then((data) => {
+      const id = {};
+      const updatedRows = data.map((endereco) => ({
+        id: endereco.id, 
+        cep: endereco.cep,
+        logradouro: endereco.logradouro,
+        numero: endereco.numero,
+        complemento: endereco.complemento,
+        bairro: endereco.bairro,
+        localidade: endereco.localidade,
+        uf: endereco.uf,
+        pais: endereco.pais,
+      }));
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Se a resposta da solicitação for bem-sucedida (status 200-299), você pode lidar com a resposta aqui
+          console.log('Recurso editado com sucesso');
+          // Se desejar atualizar a interface após a edição, faça isso aqui
+        } else {
+          // Se a resposta não for bem-sucedida, trate o erro aqui
+          throw new Error('Falha ao editar o recurso');
+        }
+      })
+      .catch((error) => {
+        console.error('Ocorreu um erro ao editar:', error);
+      })
+      
+
+      handleEdit(id, updatedRows);
+  };
+  
+  
+  
+  
+
+  
 
   // Implemente a função handleEdit
 
@@ -77,6 +125,11 @@ function EnhancedTable() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  const handleEditClick = (rowData) => {
+    setEditingAddressData(rowData);
+    setIsEditModalOpen(true);
+  };
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -119,9 +172,9 @@ function EnhancedTable() {
                   <TableCell>{row.uf}</TableCell>
                   <TableCell>{row.pais}</TableCell>
                   <TableCell>
-                    <IconButton>
-                      <EditIcon color="action" />
-                    </IconButton>
+                  <IconButton onClick={() => handleEditClick(row)}>
+                    <EditIcon color="action" />
+                  </IconButton>
                   </TableCell>
                   <TableCell>
                     <IconButton onClick={() => handleDelete(row.id)}>
@@ -142,6 +195,12 @@ function EnhancedTable() {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+        {/* <EditAddressModal
+          open={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={(updatedData) => handleEdit(updatedData)}
+          addressData={editingAddressData}
+        /> */}
       </Paper>
     </Box>
   );
