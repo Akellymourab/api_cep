@@ -16,6 +16,6 @@ const PORTA = 8000;
 
 app.listen(PORTA, () => {
     console.log('-----------');
-    console.log('-- ATIVO --');
+    console.log('-- ATIVO! --');
     console.log('-----------');
 });
